@@ -82,7 +82,7 @@ class PostingList:
 
         tokens = sorted(self.invertedIndex.keys())
         for token in tokens:
-            f.write(f"{token}:{self.invertedIndex[token]}\n")
+            f.write(f"{token}{self.invertedIndex[token]}\n")
         f.close()
 
         self.indexCount += 1

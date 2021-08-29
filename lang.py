@@ -1,5 +1,6 @@
 import re
 import nltk
+import Stemmer as pyStemmer
 from nltk.corpus import stopwords
 
 class Tokenizer:
@@ -20,6 +21,8 @@ class Tokenizer:
 class Stemmer:
     def __init__(self):
         self.stemmer = nltk.stem.SnowballStemmer('english')
+        self.stemmer = pyStemmer.Stemmer('english')
+        self.stemmer.maxCacheSize = 500000
         self.stopwords = set(stopwords.words('english'))
 
     def __call__(self, *args, **kwds):
@@ -29,9 +32,10 @@ class Stemmer:
         for word in args[0]:
             word = word.casefold()
             
-            if word in self.stopwords:
+            if word in self.stopwords or len(word) < 1 or len(word) > 20:
                 continue
 
-            new_words.append(self.stemmer.stem(word))
+            # new_words.append(word)
+            new_words.append(self.stemmer.stemWord(word.lstrip("0")))
         
         return new_words

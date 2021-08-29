@@ -1,7 +1,7 @@
 import os
 
-from xml.etree.ElementTree import XML, XMLParser, parse
-import xml.etree.ElementTree as ET
+import xml.etree.cElementTree as ET
+from lxml import etree
 
 from page import Page
 from indexer import Index, PostingList
@@ -22,7 +22,8 @@ class ParseWiki:
             self.pageno += 1
         
     def parse(self):
-        for event, elem in ET.iterparse(self.filename):
+        for event, elem in ET.iterparse(self.filename, events=('end',)):
+        # for event, elem in etree.iterparse(self.filename, events=('end',)):
 
             if event != "end":
                 continue
