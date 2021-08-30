@@ -1,14 +1,45 @@
 import os
+
+from nltk.corpus.reader.reviews import TITLE
 from lang import Tokenizer, Stemmer
 
 class CategoryInformation:
     def __init__(self):
+        self.docId = None
         self.title = 0
         self.infobox = 0
         self.body = 0
         self.categories = 0
         self.links = 0
         self.references = 0
+
+    @classmethod
+    def fromstr(cls, str):
+
+        self = cls()
+
+        number = ""
+        for char in str:
+            if char.isdigit():
+                number += char
+
+            if char.isalpha():
+                number = ""
+
+            if char == 'd':
+                self.docId = int(number)
+            elif char == 't':
+                self.title = int(number)
+            elif char == 'i':
+                self.infobox = int(number)
+            elif char == 'b':
+                self.body = int(number)
+            elif char == 'c':
+                self.categories = int(number)
+            elif char == 'l':
+                self.links = int(number)
+            elif char == 'r':
+                self.references = int(number)
 
     def __add__(self, new):
         self.title += new.title
@@ -103,3 +134,30 @@ class PostingList:
 
         self.indexCount += 1
         self.invertedIndex = {} 
+
+    def __len__(self):
+        return len(self.invertedIndex.keys())
+
+class wordDocIndex:
+    def __init__(self, word, str):
+        self.str = str
+        self.word = word
+
+    def __add__(self, str):
+        self.str += str
+
+    def __lt__(self, new):
+        if self.word == new.word:
+            return False
+        else:
+            return self.word < new.word
+
+    def getJSON(self):  
+
+        word_results = {}
+
+        docs = self.str.split("d")
+        for i in range(len(docs)):
+
+            docInfo = CategoryInformation(f"d{docs[i]}")
+            word_results[docInfo.docId] = docInfo

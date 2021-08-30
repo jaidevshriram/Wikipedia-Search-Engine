@@ -1,1 +1,3 @@
 INDEXSIZE = 10000
+INTERMEDIATE_INDEX_FOLDER = "intermediate/"
+INDEX_FOLDER = "folder/"
