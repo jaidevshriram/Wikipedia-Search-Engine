@@ -110,7 +110,7 @@ class PostingList:
     def __init__(self, intermediateIndexPath="intermediate/"):
         self.invertedIndex = {}
         self.indexCount = 0
-        self.intermediateIndexPath = "intermediate/"
+        self.intermediateIndexPath = intermediateIndexPath
 
     def add(self, index):
 
@@ -125,6 +125,7 @@ class PostingList:
             os.makedirs(self.intermediateIndexPath)
         
         file = os.path.join(self.intermediateIndexPath, f"{self.indexCount}.txt")
+        print(f"Opening file {file}")
         f = open(file, "w")
 
         tokens = sorted(self.invertedIndex.keys())
@@ -143,8 +144,9 @@ class wordDocIndex:
         self.str = str
         self.word = word
 
-    def __add__(self, str):
-        self.str += str
+    def __add__(self, wDocInd):
+        self.str += wDocInd.str
+        return self
 
     def __lt__(self, new):
         if self.word == new.word:

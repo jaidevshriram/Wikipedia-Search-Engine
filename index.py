@@ -80,7 +80,7 @@ class ParseWiki:
         while not isAllNone(word_list):
 
             # Write to file if indexsize is maxed out    
-            if len(self.postings) % INDEXSIZE:
+            if len(self.postings) % TOKENS_PER_FILE == 0 and len(self.postings) > 0:
                 self.postings.write()
 
             indicesUsed = []
@@ -90,8 +90,11 @@ class ParseWiki:
 
             # Combine common words
             for i in range(len(word_list)):
-                if i != ind and word_list[i] == word:
-                    word += word_list[i]
+                if word_list[i] is None:
+                    continue
+                
+                if i != ind and word_list[i].word == word.word:
+                    word = word + word_list[i]
                     indicesUsed.append(i)
 
             self.postings.invertedIndex[word.word] = word.str
@@ -108,7 +111,7 @@ class ParseWiki:
                 wordLine = f_index_files[i].readline().strip().strip("\n")
 
                 if wordLine != "":
-                    print(wordLine)
+                    # print(wordLine, i, index_files[i])
                     word, str = wordLine.split(":")
                     word_list[i] = wordDocIndex(word, str)
                 else:
