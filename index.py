@@ -7,6 +7,7 @@ from page import Page
 from indexer import Index, PostingList
 
 from config import *
+from lang import Tokenizer, Stemmer
 
 curpath = os.path.dirname(os.path.realpath(__file__) )
 filename = os.path.join(curpath, "../", "enwiki-latest-pages-articles17.xml-p23570393p23716197")
@@ -16,6 +17,8 @@ class ParseWiki:
         self.filename = filename
         self.postings = PostingList()
         self.file_no = 0
+        self.stemmer = Stemmer()
+        self.tokenizer = Tokenizer()
 
     def end(self, tag):
         if tag == "page":
@@ -47,12 +50,13 @@ class ParseWiki:
         page = Page()
         page.initPageFromElement(children)
         
-        index = Index(self.file_no, page)
+        index = Index(self.file_no, page, self.tokenizer, self.stemmer)
         
         self.postings.add(index)
         self.file_no += 1
 
     def end(self):
+        self.postings.write()
         print("Done Parsing!")
 
 target = ParseWiki(filename)

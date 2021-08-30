@@ -19,12 +19,28 @@ class CategoryInformation:
         self.references += new.references
 
     def __str__(self):
-        return f"t{self.title}i{self.infobox}b{self.body}c{self.categories}l{self.links}r{self.references}"
+        out = ""
+        if self.title:
+            out += f"t{self.title}"
+        if self.infobox:
+            out += f"i{self.infobox}"
+        if self.body:
+            out += f"b{self.body}"
+        if self.categories:
+            out += f"c{self.categories}"
+        if self.links:
+            out += f"l{self.links}"
+        if self.references:
+            out += f"r{self.references}"
+
+        return out
+
+        # return f"t{self.title}i{self.infobox}b{self.body}c{self.categories}l{self.links}r{self.references}"
 
 class Index:
-    def __init__(self, fileno, page):
-        self.tokenizer = Tokenizer()
-        self.stemmer = Stemmer()
+    def __init__(self, fileno, page, tokenizer, stemmer):
+        self.tokenizer = tokenizer
+        self.stemmer = stemmer
         self.index = {}
         self.fileno = fileno
 
@@ -82,7 +98,7 @@ class PostingList:
 
         tokens = sorted(self.invertedIndex.keys())
         for token in tokens:
-            f.write(f"{token}{self.invertedIndex[token]}\n")
+            f.write(f"{token}:{self.invertedIndex[token]}\n")
         f.close()
 
         self.indexCount += 1

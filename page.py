@@ -52,7 +52,7 @@ class Page:
 
     def parseCategories(self):
         self.categories = re.findall(r"\[\[Category:(.*)\]\]", self.pageText, flags=re.DOTALL)
-        self.body = re.sub(r"\[\[Category:(.*)\]\]", "", self.pageText, flags=re.DOTALL)
+        self.body = re.sub(r"\[\[Category:(.*)\]\]", "", self.body, flags=re.DOTALL)
 
     def parseLinks(self):
         linkText = self.body.split("External links")
@@ -70,4 +70,4 @@ class Page:
 
     def parseReferences(self):
         self.references = re.findall(r"<ref[^/]*?>(.*?)</ref>", self.pageText, flags=re.DOTALL)
-        self.body = re.sub(r"<ref[^/]*?>(.*?)</ref>", "", self.pageText, flags=re.DOTALL)
+        self.body = re.sub(r"<ref[^/]*?>(.*?)</ref>", "", self.body, flags=re.DOTALL)
