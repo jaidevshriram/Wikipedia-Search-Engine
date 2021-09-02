@@ -41,8 +41,8 @@ class ParseWiki:
             if self.file_no % INDEXSIZE == 0:
                 self.postings.write()
 
-            if self.file_no > 5:
-                exit()
+#            if self.file_no > 5:
+#                exit()
 
             elem.clear()
         self.end()
