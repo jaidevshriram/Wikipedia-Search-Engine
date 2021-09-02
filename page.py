@@ -2,12 +2,12 @@ from os import link
 import re
 
 class Page:
-    def __init__(self, body="", title="", infobox="", links="", references=""):
+    def __init__(self, body="", title="", infobox=[], links=[], references=[]):
         self.body = body
         self.pageText = ""
         self.title = title
         self.infobox = infobox
-        self.categories = ""
+        self.categories = []
         self.links = links
         self.references = references
 
@@ -45,12 +45,13 @@ class Page:
                 self.parseCategories()
                 self.parseLinks()
                 self.parseReferences()
+        print(self.references)
 
     def parseInfobox(self):
         infobox = []
         minStart = None
         maxEnd = None
-        for match in re.finditer(r"\{\{Infobox (.*?)\}\}[\r\n]", self.body, flags=re.S):
+        for match in re.finditer(r"{{Infobox", self.body, flags=re.DOTALL):
             start, end = match.start(), match.end()
 
             if minStart is None:
@@ -68,11 +69,12 @@ class Page:
                 
                 infoContent += content_line
             infobox.append(infoContent)
+        self.infobox = infobox
         self.body = self.body[:minStart] + self.body[maxEnd:]
 
     def parseCategories(self):
-        self.categories = re.search(r"\[\[Category:(.*)\]\]", self.body, flags=re.S)
-        self.body = re.sub(r"\[\[Category:(.*)\]\]", "", self.body, flags=re.S)
+        self.categories = re.findall(r"\[\[Category:(.*?)\]\]", self.body, flags=re.DOTALL)
+        self.body = re.sub(r"\[\[Category:(.*?)\]\]", "", self.body, flags=re.DOTALL)
 
     def parseLinks(self):
         linkText = self.body.split("External links")
@@ -89,5 +91,5 @@ class Page:
             self.body = linkText[0]
 
     def parseReferences(self):
-        self.references = re.findall(r"<ref[^/]*?>(.*?)</ref>", self.body, flags=re.S)
-        self.body = re.sub(r"<ref[^/]*?>(.*?)</ref>", "", self.body, flags=re.S)
+        self.references = re.findall(r"<ref[^/]*?>(.*?)</ref>", self.body, flags=re.DOTALL)
+        self.body = re.sub(r"<ref[^/]*?>(.*?)</ref>", "", self.body, flags=re.DOTALL)

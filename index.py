@@ -50,11 +50,11 @@ class ParseWiki:
 
         page = Page()
         page.initPageFromElement(children)
+        self.titlef.write(page.title + "\n")
         
         index = Index(self.file_no, page, self.tokenizer, self.stemmer)
         
         self.postings.add(index)
-        self.titlef.write(page.title + "\n")
         self.file_no += 1
 
     def end(self):
