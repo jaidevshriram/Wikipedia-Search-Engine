@@ -47,12 +47,32 @@ class Page:
                 self.parseReferences()
 
     def parseInfobox(self):
-        self.infoboxes = re.findall(r"\{\{Infobox (.*?)\}\}[\r\n]", self.pageText, flags=re.DOTALL)
-        self.body = re.sub(r"\{\{Infobox (.*?)\}\}[\r\n]", "", self.body, flags=re.DOTALL)
+        infobox = []
+        minStart = None
+        maxEnd = None
+        for match in re.finditer(r"\{\{Infobox (.*?)\}\}[\r\n]", self.body, flags=re.S):
+            start, end = match.start(), match.end()
+
+            if minStart is None:
+                minStart = start
+            maxEnd = end
+
+            infoContent = ""
+
+            content_block = self.body[start:start+3000].split('\n')
+            for content_line in content_block:
+                content_line = content_line.strip()
+                
+                if content_line[:2] == '}}':
+                    break
+                
+                infoContent += content_line
+            infobox.append(infoContent)
+        self.body = self.body[:minStart] + self.body[maxEnd:]
 
     def parseCategories(self):
-        self.categories = re.findall(r"\[\[Category:(.*)\]\]", self.pageText, flags=re.DOTALL)
-        self.body = re.sub(r"\[\[Category:(.*)\]\]", "", self.body, flags=re.DOTALL)
+        self.categories = re.search(r"\[\[Category:(.*)\]\]", self.body, flags=re.S)
+        self.body = re.sub(r"\[\[Category:(.*)\]\]", "", self.body, flags=re.S)
 
     def parseLinks(self):
         linkText = self.body.split("External links")
@@ -69,5 +89,5 @@ class Page:
             self.body = linkText[0]
 
     def parseReferences(self):
-        self.references = re.findall(r"<ref[^/]*?>(.*?)</ref>", self.pageText, flags=re.DOTALL)
-        self.body = re.sub(r"<ref[^/]*?>(.*?)</ref>", "", self.body, flags=re.DOTALL)
+        self.references = re.findall(r"<ref[^/]*?>(.*?)</ref>", self.body, flags=re.S)
+        self.body = re.sub(r"<ref[^/]*?>(.*?)</ref>", "", self.body, flags=re.S)

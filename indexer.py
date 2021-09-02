@@ -104,7 +104,7 @@ class Index:
 
         page.body = self.stemmer(self.tokenizer(page.body))
         page.categories = self.stemmer(self.tokenizer(' '.join(page.categories)))
-        page.infobox = self.stemmer(self.tokenizer(page.infobox))
+        page.infobox = self.stemmer(self.tokenizer(' '.join(page.infobox)))
         page.references = self.stemmer(self.tokenizer(' '.join(page.references)))
         page.links = self.stemmer(self.tokenizer(' '.join(page.links)))
         page.title = self.stemmer(self.tokenizer(page.title))
