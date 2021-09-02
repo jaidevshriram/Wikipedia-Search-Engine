@@ -38,10 +38,13 @@ class Stemmer:
                 new_words.append(self.stemmer.stemWord(word))
                 continue
 
-            if word in self.stopwords or len(word) < 2 or len(word) > 15 or (word.isnumeric() and len(word) > 4):
+            if len(word) < 2 or len(word) > 15 or (word.isnumeric() and len(word) > 4):
                 continue
 
-            if (any(char.isdigit() for char in word) and any(char.isalpha() for char in word)) or ('#' in word):
+            if (any(char.isdigit() for char in word) and any(not char.isdigit() for char in word)) or ('#' in word):
+                continue
+
+            if word in self.stopwords:
                 continue
 
             new_words.append(self.stemmer.stemWord(word))

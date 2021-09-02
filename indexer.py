@@ -104,7 +104,7 @@ class Index:
 
         page.body = self.stemmer(self.tokenizer(page.body))
         page.categories = self.stemmer(self.tokenizer(' '.join(page.categories)))
-        page.infobox = self.stemmer(self.tokenizer(' '.join(page.infobox)))
+        page.infobox = self.stemmer(self.tokenizer(page.infobox))
         page.references = self.stemmer(self.tokenizer(' '.join(page.references)))
         page.links = self.stemmer(self.tokenizer(' '.join(page.links)))
         page.title = self.stemmer(self.tokenizer(page.title))
@@ -138,6 +138,8 @@ class Index:
             if token not in self.index.keys():
                 self.index[token] = CategoryInformation()
             self.index[token].title += 1
+
+        # print(self.index['vagabond'])
 
 class PostingList:
     def __init__(self, intermediateIndexPath="intermediate/"):
