@@ -102,6 +102,9 @@ class Index:
         self.index = {}
         self.fileno = fileno
 
+        # self.allTokenCount += len(page.body.split(" ")) + len(' '.join(page.categories).split(" ")) + len(' '.join(page.references).split(" ")) + \
+            # len(page.infobox.split(" ")) + len(' '.join(page.links).split(" ")) + len(page.title.split(" "))
+
         page.body = self.stemmer(self.tokenizer(page.body))
         page.categories = self.stemmer(self.tokenizer(' '.join(page.categories)))
         page.infobox = self.stemmer(self.tokenizer(page.infobox))

@@ -25,6 +25,7 @@ class Stemmer:
         self.stemmer = pyStemmer.Stemmer('english')
         self.stemmer.maxCacheSize = 500000
         self.stopwords = set(stopwords.words('english'))
+        self.ignored_words = []
         self.noStop = noStop
         
     def __call__(self, *args, **kwds):
@@ -39,12 +40,15 @@ class Stemmer:
                 continue
 
             if len(word) < 2 or len(word) > 15 or (word.isnumeric() and len(word) > 4):
+                self.ignored_words.append(word)
                 continue
 
             if (any(char.isdigit() for char in word) and any(not char.isdigit() for char in word)) or ('#' in word):
+                self.ignored_words.append(word)
                 continue
 
             if word in self.stopwords:
+                self.ignored_words.append(word)
                 continue
 
             new_words.append(self.stemmer.stemWord(word))

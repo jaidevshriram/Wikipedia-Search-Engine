@@ -21,6 +21,7 @@ class ParseWiki:
         self.stemmer = Stemmer()
         self.tokenizer = Tokenizer()
         self.titlef = open("titles.txt", "w")
+        self.totTokens = 0
 
     def end(self, tag):
         if tag == "page":
@@ -85,6 +86,7 @@ class ParseWiki:
 
             # Write to file if indexsize is maxed out    
             if len(self.postings) % TOKENS_PER_FILE == 0 and len(self.postings) > 0:
+                self.totTokens += len(self.postings.invertedIndex.keys())
                 self.postings.write()
 
             indicesUsed = []
@@ -122,8 +124,14 @@ class ParseWiki:
                     word_list[i] = None
 
         if len(self.postings):
+            self.totTokens += len(self.postings.invertedIndex.keys())
             self.postings.write()
 
 target = ParseWiki(filename)
 target.parse()
 target.combine()
+
+f = open("invertedindex stat.txt", "w")
+f.write(str(len(set(target.stemmer.ignored_words)) + target.totTokens) + "\n")
+f.write(str(target.totTokens) + "\n")
+f.close()
