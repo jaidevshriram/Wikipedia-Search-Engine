@@ -1,4 +1,7 @@
 import os
+import sys
+import json
+
 from lang import Stemmer, Tokenizer
 from config import *
 from indexer import CategoryInformation, PostingList
@@ -102,22 +105,14 @@ class Query:
 
 if __name__ == "__main__":
 
-    qf = open("queries.txt", "r")
+    # qf = open("queries.txt", "r")
     stemmer = Stemmer(noStop=True)
     tokenizer = Tokenizer()
 
     startWords = []
-    tf = open(os.path.join(INDEX_FOLDER, "startWordFile.txt"), "r")
+    tf = open(os.path.join(sys.argv[1], "startWordFile.txt"), "r")
     startWords = tf.read().splitlines()
 
-    print(startWords)
-
-    while True:
-        query_str = qf.readline()
-        if query_str == "":
-            break
-
-        query = Query.fromString(query_str, stemmer, tokenizer)
-        result = query.process(startWords)
-        print(result.keys())
-        print(result)
+    query = Query.fromString(' '.join(sys.argv[2:]), stemmer, tokenizer)
+    result = query.process(startWords)
+    print(json.dumps(result, indent=4))

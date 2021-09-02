@@ -10,6 +10,7 @@ from config import *
 from lang import Tokenizer, Stemmer
 from utils import isAllNone, getSmallestElement
 
+print(sys.argv)
 assert len(sys.argv) == 4, "Three arguments required - Path to XML, Inverted Index Folder, Statistic File"
 
 # curpath = os.path.dirname(os.path.realpath(__file__) )
