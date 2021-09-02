@@ -15,16 +15,15 @@ class Tokenizer:
         # data = re.sub(r"[^A-Za-z0-9\ ]+", "", data)
         # tokens = data.split()
 
-#        print(data)
         tokens = re.split(r"[^A-Za-z0-9#]+", data)
-#        print(tokens)
         return tokens
 
 class Stemmer:
-    def __init__(self):
+    def __init__(self, noStop=False):
         self.stemmer = pyStemmer.Stemmer('english')
         self.stemmer.maxCacheSize = 500000
         self.stopwords = set(stopwords.words('english'))
+        self.noStop = noStop
         
     def __call__(self, *args, **kwds):
 
@@ -33,7 +32,11 @@ class Stemmer:
         for word in args[0]:
             word = word.casefold().strip().strip("0")
             
-            if word in self.stopwords or len(word) < 1 or len(word) > 15 or (word.isnumeric() and len(word) > 5):
+            if self.noStop:
+                new_words.append(self.stemmer.stemWord(word))
+                continue
+
+            if word in self.stopwords or len(word) < 2 or len(word) > 15 or (word.isnumeric() and len(word) > 5):
                 continue
 
             if word[0] == '#':

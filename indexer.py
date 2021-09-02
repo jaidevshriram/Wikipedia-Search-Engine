@@ -12,6 +12,8 @@ class CategoryInformation:
 
     @classmethod
     def fromstr(cls, str):
+        
+        str += "x"
 
         self = cls()
 
@@ -46,6 +48,7 @@ class CategoryInformation:
 
                     field = char
                     number = ""
+            
 
         return self
 
@@ -104,6 +107,7 @@ class Index:
         page.infobox = self.stemmer(self.tokenizer(page.infobox))
         page.references = self.stemmer(self.tokenizer(' '.join(page.references)))
         page.links = self.stemmer(self.tokenizer(' '.join(page.links)))
+        page.title = self.stemmer(self.tokenizer(page.title))
 
         for token in page.body:
             if token not in self.index.keys():
@@ -129,6 +133,11 @@ class Index:
             if token not in self.index.keys():
                 self.index[token] = CategoryInformation()
             self.index[token].links += 1
+
+        for token in page.title:
+            if token not in self.index.keys():
+                self.index[token] = CategoryInformation()
+            self.index[token].title += 1
 
 class PostingList:
     def __init__(self, intermediateIndexPath="intermediate/"):

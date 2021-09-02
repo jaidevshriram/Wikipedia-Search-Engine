@@ -97,7 +97,7 @@ class Query:
 if __name__ == "__main__":
 
     qf = open("queries.txt", "r")
-    stemmer = Stemmer()
+    stemmer = Stemmer(noStop=True)
     tokenizer = Tokenizer()
 
     startWords = []
@@ -114,3 +114,4 @@ if __name__ == "__main__":
         query = Query.fromString(query_str, stemmer, tokenizer)
         result = query.process(startWords)
         print(result.keys())
+        print(result)
