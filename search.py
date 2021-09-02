@@ -66,6 +66,9 @@ class Query:
         out = {}
 
         if idx == -1:
+            catInfo = PostingList.strToCategoryInfoList("")
+            wordResult = PostingList.categoryInfoListToDict(catInfo)
+            out = wordResult
             return out
 
         f = open(os.path.join(INDEX_FOLDER, f"{idx}.txt"), "r")
@@ -78,9 +81,12 @@ class Query:
             if word == wordQuery:
                 catInfo = PostingList.strToCategoryInfoList(str)
                 wordResult = PostingList.categoryInfoListToDict(catInfo)
-                out = wordResult
+                return wordResult
 
-        return out
+        catInfo = PostingList.strToCategoryInfoList("")
+        wordResult = PostingList.categoryInfoListToDict(catInfo)
+        out = wordResult
+        return out    
 
     def process(self, startWords):
 
