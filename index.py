@@ -1,5 +1,5 @@
 import os
-import heapq
+import sys
 
 import xml.etree.cElementTree as ET
 
@@ -10,8 +10,11 @@ from config import *
 from lang import Tokenizer, Stemmer
 from utils import isAllNone, getSmallestElement
 
-curpath = os.path.dirname(os.path.realpath(__file__) )
-filename = os.path.join(curpath, "../", "enwiki-latest-pages-articles17.xml-p23570393p23716197")
+assert len(sys.argv) == 4, "Three arguments required - Path to XML, Inverted Index Folder, Statistic File"
+
+# curpath = os.path.dirname(os.path.realpath(__file__) )
+# filename = os.path.join(curpath, "../", "enwiki-latest-pages-articles17.xml-p23570393p23716197")
+filename = sys.argv[1]
 
 class ParseWiki:
     def __init__(self, filename):
@@ -67,11 +70,16 @@ class ParseWiki:
             self.postings.write()
         self.titlef.close()
 
-        print("Done Parsing!")
+        print("Done Parsing! - Intermediate Indexing Over")
 
     def combine(self):
         
-        self.postings = PostingList(INDEX_FOLDER)
+        if os.path.exists(sys.argv[2]):
+            files = os.listdir(sys.argv[2])
+            for filePath in files:
+                os.remove(os.path.join(sys.argv[2], filePath))
+
+        self.postings = PostingList(sys.argv[2])
 
         index_files = os.listdir(INTERMEDIATE_INDEX_FOLDER)
         f_index_files = [open(os.path.join(INTERMEDIATE_INDEX_FOLDER, index_file), "r") for index_file in index_files if index_file[0].isnumeric()]
@@ -127,11 +135,15 @@ class ParseWiki:
             self.totTokens += len(self.postings.invertedIndex.keys())
             self.postings.write()
 
+        print("Final Inverted Index Made!")
+
 target = ParseWiki(filename)
 target.parse()
 target.combine()
 
-f = open("invertedindex stat.txt", "w")
+f = open(str(sys.argv[3]), "w")
 f.write(str(len(set(target.stemmer.ignored_words)) + target.totTokens) + "\n")
 f.write(str(target.totTokens) + "\n")
 f.close()
+
+print("Token Statistics Written")

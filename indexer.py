@@ -164,7 +164,7 @@ class PostingList:
             os.makedirs(self.intermediateIndexPath)
         
         file = os.path.join(self.intermediateIndexPath, f"{self.indexCount}.txt")
-        print(f"Opening file {file}")
+        # print(f"Opening file {file}")
         f = open(file, "w")
 
         tokens = sorted(self.invertedIndex.keys())
