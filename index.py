@@ -132,6 +132,10 @@ if __name__ == '__main__':
     # print(sys.argv)
     assert len(sys.argv) == 4, "Three arguments required - Path to XML, Inverted Index Folder, Statistic File"
 
+    if not os.path.exists(sys.argv[2]):
+        os.makedirs(sys.argv[2], exist_ok=True)
+
+
     # curpath = os.path.dirname(os.path.realpath(__file__) )
     # filename = os.path.join(curpath, "../", "enwiki-latest-pages-articles17.xml-p23570393p23716197")
     filename = sys.argv[1]
