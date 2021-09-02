@@ -20,6 +20,7 @@ class ParseWiki:
         self.file_no = 0
         self.stemmer = Stemmer()
         self.tokenizer = Tokenizer()
+        self.titlef = open("titles.txt", "w")
 
     def end(self, tag):
         if tag == "page":
@@ -53,12 +54,14 @@ class ParseWiki:
         index = Index(self.file_no, page, self.tokenizer, self.stemmer)
         
         self.postings.add(index)
+        self.titlef.write(page.title + "\n")
         self.file_no += 1
 
     def end(self):
 
         if len(self.postings):
             self.postings.write()
+        self.titlef.close()
 
         print("Done Parsing!")
 
