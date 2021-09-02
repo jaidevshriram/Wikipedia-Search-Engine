@@ -1,8 +1,5 @@
 import os
 
-from nltk.corpus.reader.reviews import TITLE
-from lang import Tokenizer, Stemmer
-
 class CategoryInformation:
     def __init__(self):
         self.docId = None
@@ -19,27 +16,38 @@ class CategoryInformation:
         self = cls()
 
         number = ""
+        field = ""
         for char in str:
+            # print(char, "-")
             if char.isdigit():
                 number += char
+                continue
 
             if char.isalpha():
-                number = ""
+                if field == "":
+                    field = char
+                    continue
 
-            if char == 'd':
-                self.docId = int(number)
-            elif char == 't':
-                self.title = int(number)
-            elif char == 'i':
-                self.infobox = int(number)
-            elif char == 'b':
-                self.body = int(number)
-            elif char == 'c':
-                self.categories = int(number)
-            elif char == 'l':
-                self.links = int(number)
-            elif char == 'r':
-                self.references = int(number)
+                if char != field:
+                    if field == 'd':
+                        self.docId = int(number)
+                    elif field == 't':
+                        self.title = int(number)
+                    elif field == 'i':
+                        self.infobox = int(number)
+                    elif field == 'b':
+                        self.body = int(number)
+                    elif field == 'c':
+                        self.categories = int(number)
+                    elif field == 'l':
+                        self.links = int(number)
+                    elif field == 'r':
+                        self.references = int(number)
+
+                    field = char
+                    number = ""
+
+        return self
 
     def __add__(self, new):
         self.title += new.title
@@ -64,9 +72,25 @@ class CategoryInformation:
         if self.references:
             out += f"r{self.references}"
 
+        # return f"t{self.title}i{self.infobox}b{self.body}c{self.categories}l{self.links}r{self.references}"
+
         return out
 
-        # return f"t{self.title}i{self.infobox}b{self.body}c{self.categories}l{self.links}r{self.references}"
+    def __getitem__(self, name: str):
+        if name == "title":
+            return self.title
+        if name == "infobox":
+            return self.infobox
+        if name == "categories":
+            return self.categories
+        if name == "references":
+            return self.references
+        if name == "links":
+            return self.links
+        if name == "body":
+            return self.body
+        if name == "doc":
+            return self.docId
 
 class Index:
     def __init__(self, fileno, page, tokenizer, stemmer):
@@ -111,6 +135,7 @@ class PostingList:
         self.invertedIndex = {}
         self.indexCount = 0
         self.intermediateIndexPath = intermediateIndexPath
+        self.startWordFile = "startWordFile.txt"
 
     def add(self, index):
 
@@ -135,6 +160,37 @@ class PostingList:
 
         self.indexCount += 1
         self.invertedIndex = {} 
+
+        startWorldFilePath = os.path.join(self.intermediateIndexPath, self.startWordFile)
+        f = open(startWorldFilePath, "a")
+        f.write(tokens[0]+"\n")
+        f.close()
+
+    @classmethod
+    def strToCategoryInfoList(cls, str):
+        splitstr = str.split('d')
+        results = []
+        for str in splitstr[1:]:
+            results.append(CategoryInformation.fromstr("d" + str))
+        return results
+
+    @classmethod
+    def categoryInfoListToDict(cls, catList):
+        out = {
+            "title": [],
+            "body": [],
+            "infobox": [],
+            "categories": [],
+            "references": [],
+            "links": [],
+        }
+
+        for catInfo in catList:
+            for field in out.keys():
+                if catInfo[field] > 0:
+                    out[field].append(catInfo["doc"])
+
+        return out
 
     def __len__(self):
         return len(self.invertedIndex.keys())

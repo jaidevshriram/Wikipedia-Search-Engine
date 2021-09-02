@@ -2,10 +2,9 @@ import os
 import heapq
 
 import xml.etree.cElementTree as ET
-from lxml import etree
 
 from page import Page
-from indexer import CategoryInformation, Index, PostingList, wordDocIndex
+from indexer import Index, PostingList, wordDocIndex
 
 from config import *
 from lang import Tokenizer, Stemmer
@@ -36,7 +35,6 @@ class ParseWiki:
             if 'page' not in elem.tag:
                 continue
 
-            children = list(elem)
             self.processChildren(list(elem))
 
             if self.file_no % INDEXSIZE == 0:
@@ -69,7 +67,7 @@ class ParseWiki:
         self.postings = PostingList(INDEX_FOLDER)
 
         index_files = os.listdir(INTERMEDIATE_INDEX_FOLDER)
-        f_index_files = [open(os.path.join(INTERMEDIATE_INDEX_FOLDER, index_file), "r") for index_file in index_files]
+        f_index_files = [open(os.path.join(INTERMEDIATE_INDEX_FOLDER, index_file), "r") for index_file in index_files if index_file[0].isnumeric()]
 
         word_list = []
         for i in range(len(f_index_files)):

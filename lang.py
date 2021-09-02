@@ -33,10 +33,10 @@ class Stemmer:
         for word in args[0]:
             word = word.casefold().strip().strip("0")
             
-            if word in self.stopwords or len(word) < 1 or len(word) > 15 or word.isnumeric():
+            if word in self.stopwords or len(word) < 1 or len(word) > 15 or (word.isnumeric() and len(word) > 5):
                 continue
 
-            if any(char.isdigit() for char in word) or word[0] == '#':
+            if word[0] == '#':
                 continue
 
             new_words.append(self.stemmer.stemWord(word))
