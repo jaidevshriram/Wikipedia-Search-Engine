@@ -15,7 +15,9 @@ class Tokenizer:
         # data = re.sub(r"[^A-Za-z0-9\ ]+", "", data)
         # tokens = data.split()
 
+#        print(data)
         tokens = re.split(r"[^A-Za-z0-9#]+", data)
+#        print(tokens)
         return tokens
 
 class Stemmer:
@@ -36,10 +38,10 @@ class Stemmer:
                 new_words.append(self.stemmer.stemWord(word))
                 continue
 
-            if word in self.stopwords or len(word) < 2 or len(word) > 15 or (word.isnumeric() and len(word) > 5):
+            if word in self.stopwords or len(word) < 2 or len(word) > 15 or (word.isnumeric() and len(word) > 4):
                 continue
 
-            if word[0] == '#':
+            if (any(char.isdigit() for char in word) and any(char.isalpha() for char in word)) or ('#' in word):
                 continue
 
             new_words.append(self.stemmer.stemWord(word))
