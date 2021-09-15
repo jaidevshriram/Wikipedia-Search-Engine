@@ -23,7 +23,6 @@ class ParseWiki:
             os.makedirs(sys.argv[2])
 
         self.titlef = open(os.path.join(sys.argv[2], f"titles_{self.postings.indexCount}.txt"), "w")
-        self.titleFile
         self.totTokens = 0
         
     def parse(self):
@@ -96,11 +95,15 @@ class ParseWiki:
                 self.postings.write()
 
             newWord = heap[0].word
-            word = heap[0].catInfo
+            word = None
 
             # Keep popping from heap as long as the word is the same
             while len(heap) and heap[0].word is newWord:
-                word = word + heap[0].catInfo # Combine postings for this word
+
+                if word is not None:
+                    word = word + heap[0].catInfo # Combine postings for this word
+                else:
+                    word = heap[0].catInfo
                 
                 index_file_idx = heap[0].f
                 wordLine = f_index_files[index_file_idx].readline().strip().strip("\n")
@@ -109,9 +112,9 @@ class ParseWiki:
 
                 # Only add to heap if the line read is not empty
                 if wordLine != "":
-                    word, str = wordLine.split(":")
-                    newNode = HeapNode(word, index_file_idx, wordDocIndex(word, str))
-                    heapq.heappush(newNode)
+                    newWord, str = wordLine.split(":")
+                    newNode = HeapNode(newWord, index_file_idx, wordDocIndex(newWord, str))
+                    heapq.heappush(heap, newNode)
 
             self.postings.invertedIndex[word.word] = word.str
 
@@ -135,7 +138,7 @@ if __name__ == '__main__':
     filename = sys.argv[1]
 
     target = ParseWiki(filename)
-    target.parse()
+    # target.parse()
     target.combine()
 
     f = open(str(sys.argv[3]), "w")
