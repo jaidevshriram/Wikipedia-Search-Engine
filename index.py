@@ -1,5 +1,6 @@
 import os
 import sys
+import heapq
 
 import xml.etree.cElementTree as ET
 
@@ -8,7 +9,7 @@ from indexer import Index, PostingList, wordDocIndex
 
 from config import *
 from lang import Tokenizer, Stemmer
-from utils import isAllNone, getSmallestElement
+from utils import isAllNone, getSmallestElement, HeapNode
 
 class ParseWiki:
     def __init__(self, filename):
@@ -17,7 +18,12 @@ class ParseWiki:
         self.file_no = 0
         self.stemmer = Stemmer()
         self.tokenizer = Tokenizer()
-        self.titlef = open(os.path.join(sys.argv[2], "titles.txt"), "w")
+
+        if not os.path.exists(sys.argv[2]):
+            os.makedirs(sys.argv[2])
+
+        self.titlef = open(os.path.join(sys.argv[2], f"titles_{self.postings.indexCount}.txt"), "w")
+        self.titleFile
         self.totTokens = 0
         
     def parse(self):
@@ -33,10 +39,9 @@ class ParseWiki:
             self.processChildren(list(elem))
 
             if self.file_no % INDEXSIZE == 0:
-                self.postings.write()
-
-#            if self.file_no > 5:
-#                exit()
+                self.titlef.close()
+                self.postings.write()                
+                self.titlef = open(os.path.join(sys.argv[2], f"titles_{self.postings.indexCount}.txt"), "w")
 
             elem.clear()
         self.end()
@@ -78,48 +83,37 @@ class ParseWiki:
         for i in range(len(f_index_files)):
             wordLine = f_index_files[i].readline().strip().strip("\n")
             word, str = wordLine.split(":")
-            word_list.append(wordDocIndex(word, str))
+            word_list.append(HeapNode(word, i, wordDocIndex(word, str)))
 
-        while not isAllNone(word_list):
+        heapq.heapify(word_list)
+        heap = word_list.copy()
+
+        while len(heap):
 
             # Write to file if indexsize is maxed out    
             if len(self.postings) % TOKENS_PER_FILE == 0 and len(self.postings) > 0:
                 self.totTokens += len(self.postings.invertedIndex.keys())
                 self.postings.write()
 
-            indicesUsed = []
+            newWord = heap[0].word
+            word = heap[0].catInfo
 
-            ind, word = getSmallestElement(word_list)
-            indicesUsed.append(ind)
-
-            # Combine common words
-            for i in range(len(word_list)):
-                if word_list[i] is None:
-                    continue
+            # Keep popping from heap as long as the word is the same
+            while len(heap) and heap[0].word is newWord:
+                word = word + heap[0].catInfo # Combine postings for this word
                 
-                if i != ind and word_list[i].word == word.word:
-                    word = word + word_list[i]
-                    indicesUsed.append(i)
+                index_file_idx = heap[0].f
+                wordLine = f_index_files[index_file_idx].readline().strip().strip("\n")
+
+                heapq.heappop(heap)
+
+                # Only add to heap if the line read is not empty
+                if wordLine != "":
+                    word, str = wordLine.split(":")
+                    newNode = HeapNode(word, index_file_idx, wordDocIndex(word, str))
+                    heapq.heappush(newNode)
 
             self.postings.invertedIndex[word.word] = word.str
-
-            # Set used words to None
-            for i in indicesUsed:
-                word_list[i] = None
-            
-            # Read from files where the words were used up
-            for i in range(len(word_list)):
-                if word_list[i] is not None:
-                    continue
-
-                wordLine = f_index_files[i].readline().strip().strip("\n")
-
-                if wordLine != "":
-                    # print(wordLine, i, index_files[i])
-                    word, str = wordLine.split(":")
-                    word_list[i] = wordDocIndex(word, str)
-                else:
-                    word_list[i] = None
 
         if len(self.postings):
             self.totTokens += len(self.postings.invertedIndex.keys())

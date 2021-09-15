@@ -20,3 +20,15 @@ def getSmallestElement(list):
             smallInd = i
 
     return smallInd, smallest
+
+class HeapNode:
+    def __init__(self, word, f, catInfo):
+        self.word = word
+        self.f = f
+        self.catInfo = catInfo
+
+    def __lt__(self, new_node):
+        if self.word == new_node.word:
+            return self.f < new_node.f
+        else:
+            return self.word < new_node.word
