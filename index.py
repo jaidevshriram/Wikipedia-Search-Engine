@@ -138,7 +138,7 @@ if __name__ == '__main__':
     filename = sys.argv[1]
 
     target = ParseWiki(filename)
-    # target.parse()
+    target.parse()
     target.combine()
 
     f = open(str(sys.argv[3]), "w")

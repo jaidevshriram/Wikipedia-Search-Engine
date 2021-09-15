@@ -32,3 +32,32 @@ class HeapNode:
             return self.f < new_node.f
         else:
             return self.word < new_node.word
+
+def getChar(num):
+    if (num >= 0 and num <= 9):
+        return chr(num + ord('0'))
+    else:
+        return chr(num - 10 + ord('A'))
+
+def getNum(str):
+    if str >= '0' and str <= '9':
+        return ord(str) - ord('0')
+    else:
+        return ord(str) - ord('A') + 10
+
+def encode32(num):
+
+    out = ""
+    while num:
+        out += getChar(num % 32)
+        num = num // 32
+
+    return out[::-1]
+
+def decode32(str):
+
+    num = 0
+    str = str[::-1]
+    for i in range(len(str)):
+        num += getNum(str[i]) * (32 ** i)
+    return num

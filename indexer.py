@@ -1,4 +1,5 @@
 import os
+from utils import encode32
 
 class CategoryInformation:
     def __init__(self):
@@ -156,7 +157,7 @@ class PostingList:
         for key in index.index.keys():
             if key not in self.invertedIndex.keys():
                 self.invertedIndex[key] = ""
-            self.invertedIndex[key] += f"d{index.fileno}" + str(index.index[key])
+            self.invertedIndex[key] += f"d{encode32(index.fileno)}" + str(index.index[key])
 
     def write(self):
 
