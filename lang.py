@@ -1,5 +1,4 @@
 import re
-import nltk
 import Stemmer as pyStemmer
 from nltk.corpus import stopwords
 
@@ -23,7 +22,7 @@ class Tokenizer:
 class Stemmer:
     def __init__(self, noStop=False):
         self.stemmer = pyStemmer.Stemmer('english')
-        self.stemmer.maxCacheSize = 500000
+        self.stemmer.maxCacheSize = 1000000
         self.stopwords = set(stopwords.words('english'))
         self.ignored_words = []
         self.noStop = noStop
@@ -40,15 +39,15 @@ class Stemmer:
                 continue
 
             if len(word) < 2 or len(word) > 15 or (word.isnumeric() and len(word) > 4):
-                self.ignored_words.append(word)
+                # self.ignored_words.append(word)
                 continue
 
             if (any(char.isdigit() for char in word) and any(not char.isdigit() for char in word)) or ('#' in word):
-                self.ignored_words.append(word)
+                # self.ignored_words.append(word)
                 continue
 
             if word in self.stopwords:
-                self.ignored_words.append(word)
+                # self.ignored_words.append(word)
                 continue
 
             new_words.append(self.stemmer.stemWord(word))
