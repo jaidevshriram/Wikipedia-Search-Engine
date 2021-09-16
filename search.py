@@ -35,14 +35,10 @@ class TitleCache:
     def __init__(self, title_path, titles_per_file):
         self.title_path = title_path
         self.titles_per_file = titles_per_file
-    
-    def getFileNo(self, docId):
-        titleFile = docId //  self.titles_per_file
-        titleFileLine = docId % self.titles_per_file + 1
-        return titleFile, titleFileLine
 
     def __call__(self, docId):
-        titleFile, titleFileLine = self.getFileNo(docId)
+        titleFile = docId //  self.titles_per_file
+        titleFileLine = docId % self.titles_per_file + 1
         title = linecache.getline(os.path.join(self.title_path, f"titles_{titleFile}.txt"), titleFileLine)
 
         return title.strip().strip('\n').lower()
@@ -100,6 +96,8 @@ class Query:
             out = wordResult
             return out
 
+        print("doc in", idx)
+
         f = open(os.path.join(sys.argv[1], f"{idx}.txt"), "r")
         while True:
             line = f.readline().strip().strip("\n")
@@ -108,7 +106,7 @@ class Query:
             word, str = line.split(":")
             
             if word == wordQuery:
-                sec = time.time()
+                startTime = time.time()
 
                 catInfo = PostingList.strToCategoryInfoList(str, self.pool, fields)
 
@@ -132,13 +130,13 @@ class Query:
                 continue
             indexFileNo = binary_search(startWords, 0, len(startWords)-1, k)
 
-            startTime = time.time()
+            # startTime = time.time()
 
             docInfo = self.findWordFromFile(k, list(v), indexFileNo)
 
-            sec = time.time() - startTime
+            # sec = time.time() - startTime
 
-            print('finding word', sec, "seconds")
+            # print('finding word', sec, "seconds")
 
             for docId, docScore in docInfo:
                 if docId in output.keys():
@@ -178,12 +176,17 @@ if __name__ == "__main__":
         query = Query.fromString(query, stemmer, tokenizer, titleCache, pool)
         result = query.process(startWords)
         print(len(result))
+        sec = time.time() - startTime
+        
+        print("<Search process> time", sec)
+        
+        startTime = time.time()
         docTitles = list(map(titleCache, result))
         print(docTitles)
+        sec2 = time.time() - startTime
+        print("<Title>", sec2, "seconds")
 
-        sec = time.time() - startTime
-
-        print('----', sec, "seconds")
+        print("-----", sec + sec2, "------")
         # print(json.dumps(result, indent=4))
 
     qf.close()

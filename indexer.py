@@ -239,15 +239,26 @@ class PostingList:
                 results.append(CategoryInformation.fromstr("d" + str))
             return results
         else:
-            splitstr = str.split('d')[1:]
             startTime = time.time()
-
-            docInfo = pool.starmap(strToPost, zip(repeat(CategoryInformation), splitstr, repeat(True), repeat(fields), repeat(len(splitstr))))
-
+            splitstr = str.split('d')[1:]
             sec = time.time() - startTime
-            print('star map', sec, "seconds")
+            print('> split time', sec, "seconds", len(splitstr), "docs")
+            
+            startTime = time.time()
+            docInfo = pool.starmap(strToPost, zip(repeat(CategoryInformation), splitstr, repeat(True), repeat(fields), repeat(len(splitstr))))
+            sec = time.time() - startTime
+            print('> star map', sec, "seconds")
             return docInfo
 
+#            startTime = time.time()
+#            docInfo = []
+#
+#            for a, b, c, d, e in zip(repeat(CategoryInformation), splitstr, repeat(True), repeat(fields), repeat(len(splitstr))):
+#                docInfo.append(strToPost(a, b, c, d, e))
+#            sec = time.time() - startTime
+#            print('> manual', sec, "seconds")
+#            return docInfo
+#
     @classmethod
     def categoryInfoListToDict(cls, catList):
         out = {
