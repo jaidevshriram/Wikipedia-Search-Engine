@@ -108,7 +108,13 @@ class Query:
             word, str = line.split(":")
             
             if word == wordQuery:
+                sec = time.time()
+
                 catInfo = PostingList.strToCategoryInfoList(str, self.pool, fields)
+
+                sec = time.time() - startTime
+                print('creating catInfo', sec, "seconds")
+
                 return catInfo
 
         catInfo = PostingList.strToCategoryInfoList("")
@@ -125,7 +131,14 @@ class Query:
             if k == "":
                 continue
             indexFileNo = binary_search(startWords, 0, len(startWords)-1, k)
+
+            startTime = time.time()
+
             docInfo = self.findWordFromFile(k, list(v), indexFileNo)
+
+            sec = time.time() - startTime
+
+            print('finding word', sec, "seconds")
 
             for docId, docScore in docInfo:
                 if docId in output.keys():

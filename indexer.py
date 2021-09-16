@@ -1,5 +1,6 @@
 import os
 import math
+import time
 
 from itertools import repeat
 
@@ -54,8 +55,8 @@ def strToPost(cls, str, score=False, fields=[], totDocs=10):
         tf = 0
         tf += 1000 * self.title
         tf += 10 * self.infobox
-        tf += 20 * self.body
-        tf += 10 * self.categories
+        tf += 5 * self.body
+        tf += 2 * self.categories
         tf += 0.1 * self.links
         tf += 0.01 * self.references
 
@@ -77,7 +78,7 @@ def strToPost(cls, str, score=False, fields=[], totDocs=10):
                 tf += 10000 * self.references
 
         idf = TOT_ARTICLES / totDocs
-        score = math.log(tf) + math.log(idf)
+        score = math.log10(tf) + math.log10(idf)
 
         return self.docId, score
 
@@ -239,7 +240,12 @@ class PostingList:
             return results
         else:
             splitstr = str.split('d')[1:]
+            startTime = time.time()
+
             docInfo = pool.starmap(strToPost, zip(repeat(CategoryInformation), splitstr, repeat(True), repeat(fields), repeat(len(splitstr))))
+
+            sec = time.time() - startTime
+            print('star map', sec, "seconds")
             return docInfo
 
     @classmethod
