@@ -71,7 +71,8 @@ class ParseWiki:
         if os.path.exists(sys.argv[2]):
             files = os.listdir(sys.argv[2])
             for filePath in files:
-                os.remove(os.path.join(sys.argv[2], filePath))
+                if 'title' not in filePath:
+                    os.remove(os.path.join(sys.argv[2], filePath))
 
         self.postings = PostingList(sys.argv[2])
 
