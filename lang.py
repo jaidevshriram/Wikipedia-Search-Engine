@@ -42,8 +42,11 @@ class Stemmer:
                 # self.ignored_words.append(word)
                 continue
 
-            if (any(char.isdigit() for char in word) and any(not char.isdigit() for char in word)) or ('#' in word):
+            if (any(char.isdigit() for char in word) and any(not char.isdigit() for char in word) and len(word) > 4):
                 # self.ignored_words.append(word)
+                continue
+
+            if  '#' in word:
                 continue
 
             if word in self.stopwords:

@@ -1,5 +1,6 @@
 import os
 import sys
+import copy
 import heapq
 
 import xml.etree.cElementTree as ET
@@ -99,13 +100,13 @@ class ParseWiki:
             word = None
 
             # Keep popping from heap as long as the word is the same
-            while len(heap) and heap[0].word is newWord:
-
-                if word is not None:
-                    word = word + heap[0].catInfo # Combine postings for this word
-                else:
-                    word = heap[0].catInfo
+            while len(heap) and heap[0].word == newWord:
                 
+                if word is not None:
+                    word = copy.deepcopy(word + heap[0].catInfo) # Combine postings for this word
+                else:
+                    word = copy.deepcopy(heap[0].catInfo)
+
                 index_file_idx = heap[0].f
                 wordLine = f_index_files[index_file_idx].readline().strip().strip("\n")
 
@@ -113,8 +114,8 @@ class ParseWiki:
 
                 # Only add to heap if the line read is not empty
                 if wordLine != "":
-                    newWord, str = wordLine.split(":")
-                    newNode = HeapNode(newWord, index_file_idx, wordDocIndex(newWord, str))
+                    replaceWord, str = wordLine.split(":")
+                    newNode = HeapNode(replaceWord, index_file_idx, wordDocIndex(replaceWord, str))
                     heapq.heappush(heap, newNode)
 
             self.postings.invertedIndex[word.word] = word.str
@@ -132,7 +133,6 @@ if __name__ == '__main__':
 
     if not os.path.exists(sys.argv[2]):
         os.makedirs(sys.argv[2], exist_ok=True)
-
 
     # curpath = os.path.dirname(os.path.realpath(__file__) )
     # filename = os.path.join(curpath, "../", "enwiki-latest-pages-articles17.xml-p23570393p23716197")

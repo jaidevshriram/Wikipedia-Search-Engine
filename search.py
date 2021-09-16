@@ -2,9 +2,13 @@ import os
 import sys
 import json
 
+import linecache
+
+from multiprocessing import Pool
+
 from lang import Stemmer, Tokenizer
 from config import *
-from indexer import CategoryInformation, PostingList
+from indexer import CategoryInformation, PostingList, strToPost
 
 def binary_search(arr, l, r, x):
     if l > r:
@@ -25,17 +29,35 @@ def binary_search(arr, l, r, x):
         else:
             return mid
 
+class TitleCache:
+    def __init__(self, title_path, titles_per_file):
+        self.title_path = title_path
+        self.titles_per_file = titles_per_file
+    
+    def getFileNo(self, docId):
+        titleFile = docId //  self.titles_per_file
+        titleFileLine = docId % self.titles_per_file + 1
+        return titleFile, titleFileLine
+
+    def __call__(self, docId):
+        titleFile, titleFileLine = self.getFileNo(docId)
+        return linecache.getline(os.path.join(self.title_path, f"titles_{titleFile}.txt"), titleFileLine) 
+
 class Query:
 
     def __init__(self):
         self.words = []
         self.wordstr = None
+        self.pool = None
+        self.titleCache = None
 
     @classmethod
-    def fromString(cls, str, stemmer, tokenizer):
+    def fromString(cls, str, stemmer, tokenizer, titleCache, pool):
         self = cls()
 
         self.words = []
+        self.titleCache = titleCache
+        self.pool = pool
 
         splitstr = str.strip().strip("\n").split(":")
 
@@ -64,7 +86,7 @@ class Query:
                     
         return self
 
-    def findWordFromFile(self, wordQuery, idx):
+    def findWordFromFile(self, wordQuery, fields, idx):
 
         out = {}
 
@@ -82,37 +104,56 @@ class Query:
             word, str = line.split(":")
             
             if word == wordQuery:
-                catInfo = PostingList.strToCategoryInfoList(str)
-                wordResult = PostingList.categoryInfoListToDict(catInfo)
-                return wordResult
+                catInfo = PostingList.strToCategoryInfoList(str, self.pool, fields)
+                return catInfo
 
         catInfo = PostingList.strToCategoryInfoList("")
-        wordResult = PostingList.categoryInfoListToDict(catInfo)
-        out = wordResult
-        return out    
+        # wordResult = PostingList.categoryInfoListToDict(catInfo)
+        # out = wordResult
+        return catInfo    
 
     def process(self, startWords):
 
         output = {}
         
-        for k in self.wordstr.keys():
+        for k, v in self.wordstr.items():
             if k == "":
                 continue
             indexFileNo = binary_search(startWords, 0, len(startWords)-1, k)
-            output[k] = self.findWordFromFile(k, indexFileNo)
+            docInfo = self.findWordFromFile(k, list(v), indexFileNo)
 
-        return output
+            for docId, docScore in docInfo:
+                if docId in output.keys():
+                    output[docId] += docScore
+                else:
+                    output[docId]  = docScore
+
+        docIds = sorted(output.keys(), key=lambda x: output[x])[-10:][::-1]
+
+        return docIds
 
 if __name__ == "__main__":
 
-    # qf = open("queries.txt", "r")
     stemmer = Stemmer(noStop=True)
     tokenizer = Tokenizer()
+    titleCache = TitleCache(sys.argv[1], INDEXSIZE)
+    pool = Pool(NUM_WORKERS)
 
     startWords = []
     tf = open(os.path.join(sys.argv[1], "startWordFile.txt"), "r")
     startWords = tf.read().splitlines()
 
-    query = Query.fromString(' '.join(sys.argv[2:]), stemmer, tokenizer)
-    result = query.process(startWords)
-    print(json.dumps(result, indent=4))
+    qf = open("queries.txt", "r")
+    out = open("queries_op.txt", "w")
+    for query in qf.readlines():
+        query = query.strip("\n").strip()
+        query = Query.fromString(query, stemmer, tokenizer, titleCache, pool)
+        result = query.process(startWords)
+        print(result)
+        docTitles = list(map(titleCache, result))
+        print(docTitles)
+        print('----')
+        # print(json.dumps(result, indent=4))
+
+    qf.close()
+    out.close()

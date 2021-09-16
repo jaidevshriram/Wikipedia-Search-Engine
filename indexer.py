@@ -1,5 +1,90 @@
 import os
-from utils import encode32
+import math
+
+from itertools import repeat
+
+from config import TOT_ARTICLES
+from utils import encode32, decode32, removeDocInfo
+
+def strToPost(cls, str, score=False, fields=[], totDocs=10):
+    str += "x"
+
+    if score:
+        str = "d" + str
+
+    self = cls()
+
+    number = ""
+    field = ""
+
+    docId, str = removeDocInfo(str)
+    self.docId = decode32(docId)
+
+    for char in str:
+        # print(char, "-")
+        if char.isdigit():
+            number += char
+            continue
+
+        if char.isalpha():
+            if field == "":
+                field = char
+                continue
+
+            if char != field:
+                if field == 'd':
+                    self.docId = decode32(number)
+                elif field == 't':
+                    self.title = int(number)
+                elif field == 'i':
+                    self.infobox = int(number)
+                elif field == 'b':
+                    self.body = int(number)
+                elif field == 'c':
+                    self.categories = int(number)
+                elif field == 'l':
+                    self.links = int(number)
+                elif field == 'r':
+                    self.references = int(number)
+
+                field = char
+                number = ""
+
+    if score:
+        tf = 0
+        tf += 100 * self.title
+        tf += 20 * self.infobox
+        tf += 50 * self.body
+        tf += 10 * self.categories
+        tf += 5 * self.links
+        tf += 5 * self.references
+
+        for field in fields:
+            if field == 'a':
+                continue
+
+            if field == 't':
+                tf += 1000 * self.title
+            elif field == 'i':
+                tf += 1000 * self.infobox
+            elif field == 'b':
+                tf += 1000 * self.body
+            elif field == 'c':
+                tf += 1000 * self.categories
+            elif field == 'l':
+                tf += 1000 * self.links
+            elif field == 'r':
+                tf += 1000 * self.references
+
+        idf = TOT_ARTICLES / totDocs
+        score = math.log(tf) + math.log(idf)
+
+        return self.docId, score
+
+    # print("doc", self.docId)
+    # print("title", self.title)
+    return self
+
 
 class CategoryInformation:
     def __init__(self):
@@ -13,45 +98,7 @@ class CategoryInformation:
 
     @classmethod
     def fromstr(cls, str):
-        
-        str += "x"
-
-        self = cls()
-
-        number = ""
-        field = ""
-        for char in str:
-            # print(char, "-")
-            if char.isdigit():
-                number += char
-                continue
-
-            if char.isalpha():
-                if field == "":
-                    field = char
-                    continue
-
-                if char != field:
-                    if field == 'd':
-                        self.docId = int(number)
-                    elif field == 't':
-                        self.title = int(number)
-                    elif field == 'i':
-                        self.infobox = int(number)
-                    elif field == 'b':
-                        self.body = int(number)
-                    elif field == 'c':
-                        self.categories = int(number)
-                    elif field == 'l':
-                        self.links = int(number)
-                    elif field == 'r':
-                        self.references = int(number)
-
-                    field = char
-                    number = ""
-            
-
-        return self
+        return strToPost(cls, str)
 
     def __add__(self, new):
         self.title += new.title
@@ -182,12 +229,18 @@ class PostingList:
         f.close()
 
     @classmethod
-    def strToCategoryInfoList(cls, str):
-        splitstr = str.split('d')
-        results = []
-        for str in splitstr[1:]:
-            results.append(CategoryInformation.fromstr("d" + str))
-        return results
+    def strToCategoryInfoList(cls, str, pool=None, fields=['a']):
+
+        if pool is None:
+            splitstr = str.split('d')
+            results = []
+            for str in splitstr[1:]:
+                results.append(CategoryInformation.fromstr("d" + str))
+            return results
+        else:
+            splitstr = str.split('d')[1:]
+            docInfo = pool.starmap(strToPost, zip(repeat(CategoryInformation), splitstr, repeat(True), repeat(fields), repeat(len(splitstr))))
+            return docInfo
 
     @classmethod
     def categoryInfoListToDict(cls, catList):

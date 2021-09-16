@@ -61,3 +61,21 @@ def decode32(str):
     for i in range(len(str)):
         num += getNum(str[i]) * (32 ** i)
     return num
+
+def removeDocInfo(str):
+    out = ""
+    docId = ""
+    flag = 0
+    for char in str:
+        if char == 'd':
+            continue
+        
+        if char.isalpha() and char.lower() == char:
+            flag = 1
+
+        if not flag:
+            docId += char
+        else:
+            out += char
+
+    return docId, out
