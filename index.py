@@ -88,6 +88,7 @@ class ParseWiki:
 
         heapq.heapify(word_list)
         heap = word_list.copy()
+        count = 0
 
         while len(heap):
 
@@ -103,9 +104,9 @@ class ParseWiki:
             while len(heap) and heap[0].word == newWord:
                 
                 if word is not None:
-                    word = copy.deepcopy(word + heap[0].catInfo) # Combine postings for this word
+                    word = word + heap[0].catInfo # Combine postings for this word
                 else:
-                    word = copy.deepcopy(heap[0].catInfo)
+                    word = heap[0].catInfo
 
                 index_file_idx = heap[0].f
                 wordLine = f_index_files[index_file_idx].readline().strip().strip("\n")
@@ -119,6 +120,10 @@ class ParseWiki:
                     heapq.heappush(heap, newNode)
 
             self.postings.invertedIndex[word.word] = word.str
+            print(count, end="\r")
+            count += 1
+
+        print("\n")
 
         if len(self.postings):
             self.totTokens += len(self.postings.invertedIndex.keys())
@@ -139,7 +144,7 @@ if __name__ == '__main__':
     filename = sys.argv[1]
 
     target = ParseWiki(filename)
-    target.parse()
+    # target.parse()
     target.combine()
 
     f = open(str(sys.argv[3]), "w")

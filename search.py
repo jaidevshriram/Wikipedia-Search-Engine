@@ -119,6 +119,7 @@ class Query:
     def process(self, startWords):
 
         output = {}
+
         
         for k, v in self.wordstr.items():
             if k == "":
@@ -143,6 +144,8 @@ class Query:
 
 if __name__ == "__main__":
 
+    import time
+
     stemmer = Stemmer(noStop=True)
     tokenizer = Tokenizer()
     titleCache = TitleCache(sys.argv[1], INDEXSIZE)
@@ -155,13 +158,19 @@ if __name__ == "__main__":
     qf = open("queries.txt", "r")
     out = open("queries_op.txt", "w")
     for query in qf.readlines():
+
+        startTime = time.time()
+
         query = query.strip("\n").strip()
         query = Query.fromString(query, stemmer, tokenizer, titleCache, pool)
         result = query.process(startWords)
         print(len(result))
         docTitles = list(map(titleCache, result))
         print(docTitles)
-        print('----')
+
+        sec = time.time() - startTime
+
+        print('----', sec, "seconds")
         # print(json.dumps(result, indent=4))
 
     qf.close()

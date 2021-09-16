@@ -52,29 +52,29 @@ def strToPost(cls, str, score=False, fields=[], totDocs=10):
 
     if score:
         tf = 0
-        tf += 100 * self.title
-        tf += 20 * self.infobox
-        tf += 50 * self.body
+        tf += 1000 * self.title
+        tf += 10 * self.infobox
+        tf += 20 * self.body
         tf += 10 * self.categories
-        tf += 5 * self.links
-        tf += 5 * self.references
+        tf += 0.1 * self.links
+        tf += 0.01 * self.references
 
         for field in fields:
             if field == 'a':
                 continue
 
             if field == 't':
-                tf += 1000 * self.title
+                tf += 10000 * self.title
             elif field == 'i':
-                tf += 1000 * self.infobox
+                tf += 10000 * self.infobox
             elif field == 'b':
-                tf += 1000 * self.body
+                tf += 10000 * self.body
             elif field == 'c':
-                tf += 1000 * self.categories
+                tf += 10000 * self.categories
             elif field == 'l':
-                tf += 1000 * self.links
+                tf += 10000 * self.links
             elif field == 'r':
-                tf += 1000 * self.references
+                tf += 10000 * self.references
 
         idf = TOT_ARTICLES / totDocs
         score = math.log(tf) + math.log(idf)
