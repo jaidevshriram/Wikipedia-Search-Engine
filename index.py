@@ -53,6 +53,10 @@ class ParseWiki:
         page = Page()
         page.initPageFromElement(children)
         self.titlef.write(page.title + "\n")
+
+        if "Wikipedia:" in page.title or "Category:" in page.title:
+            self.file_no += 1
+            return
         
         index = Index(self.file_no, page, self.tokenizer, self.stemmer)
         
