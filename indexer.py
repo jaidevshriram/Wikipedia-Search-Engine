@@ -57,8 +57,8 @@ def strToPost(cls, str, score=False, fields=[], totDocs=10):
         tf += 10 * self.infobox
         tf += 5 * self.body
         tf += 2 * self.categories
-        tf += 0.1 * self.links
-        tf += 0.01 * self.references
+        tf += 0.5 * self.links
+        tf += 0.1 * self.references
 
         for field in fields:
             if field == 'a':
@@ -77,8 +77,7 @@ def strToPost(cls, str, score=False, fields=[], totDocs=10):
             elif field == 'r':
                 tf += 10000 * self.references
 
-        idf = TOT_ARTICLES / totDocs
-        score = math.log10(tf) + math.log10(idf)
+        score = math.log10(1 + tf) * math.log10(TOT_ARTICLES / totDocs)
 
         return self.docId, score
 

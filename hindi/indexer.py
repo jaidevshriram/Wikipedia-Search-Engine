@@ -1,5 +1,6 @@
 import os
 import math
+import time
 
 from itertools import repeat
 
@@ -52,33 +53,32 @@ def strToPost(cls, str, score=False, fields=[], totDocs=10):
 
     if score:
         tf = 0
-        tf += 100 * self.title
-        tf += 20 * self.infobox
-        tf += 50 * self.body
-        tf += 10 * self.categories
-        tf += 5 * self.links
-        tf += 5 * self.references
+        tf += 1000 * self.title
+        tf += 10 * self.infobox
+        tf += 5 * self.body
+        tf += 2 * self.categories
+        tf += 0.1 * self.links
+        tf += 0.01 * self.references
 
         for field in fields:
             if field == 'a':
                 continue
 
             if field == 't':
-                tf += 1000 * self.title
+                tf += 10000 * self.title
             elif field == 'i':
-                tf += 1000 * self.infobox
+                tf += 10000 * self.infobox
             elif field == 'b':
-                tf += 1000 * self.body
+                tf += 10000 * self.body
             elif field == 'c':
-                tf += 1000 * self.categories
+                tf += 10000 * self.categories
             elif field == 'l':
-                tf += 1000 * self.links
+                tf += 10000 * self.links
             elif field == 'r':
-                tf += 1000 * self.references
+                tf += 10000 * self.references
 
-        idf = TOT_ARTICLES / totDocs
-        score = math.log(tf) + math.log(idf)
-
+        score = math.log10(1 + tf) * math.log10(TOT_ARTICLES / totDocs)
+        
         return self.docId, score
 
     # print("doc", self.docId)
@@ -238,10 +238,26 @@ class PostingList:
                 results.append(CategoryInformation.fromstr("d" + str))
             return results
         else:
+            # startTime = time.time()
             splitstr = str.split('d')[1:]
+            # sec = time.time() - startTime
+            # print('> split time', sec, "seconds", len(splitstr), "docs")
+            
+            # startTime = time.time()
             docInfo = pool.starmap(strToPost, zip(repeat(CategoryInformation), splitstr, repeat(True), repeat(fields), repeat(len(splitstr))))
+            # sec = time.time() - startTime
+            # print('> star map', sec, "seconds")
             return docInfo
 
+#            startTime = time.time()
+#            docInfo = []
+#
+#            for a, b, c, d, e in zip(repeat(CategoryInformation), splitstr, repeat(True), repeat(fields), repeat(len(splitstr))):
+#                docInfo.append(strToPost(a, b, c, d, e))
+#            sec = time.time() - startTime
+#            print('> manual', sec, "seconds")
+#            return docInfo
+#
     @classmethod
     def categoryInfoListToDict(cls, catList):
         out = {

@@ -173,6 +173,7 @@ if __name__ == "__main__":
         startTime = time.time()
 
         query = query.strip("\n").strip()
+        print("Q: ", query)
         query = Query.fromString(query, stemmer, tokenizer, titleCache, pool)
         result = query.process(startWords)
         # print(len(result))
@@ -183,9 +184,9 @@ if __name__ == "__main__":
         # startTime = time.time()
         docTitles = list(map(titleCache, result))
 
-        # print(docTitles)
+        print(docTitles)
         sec2 = time.time() - startTime
-        # print("<Title>", sec2, "seconds")
+        print("Time:", sec2, "seconds \n \n")
 
         for docId, title in zip(result, docTitles):
             out.write(f"{docId}, {title}\n")

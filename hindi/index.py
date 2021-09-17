@@ -38,10 +38,10 @@ class ParseWiki:
 
             self.processChildren(list(elem))
 
-            if self.file_no % INDEXSIZE == 0:
-                self.titlef.close()
-                self.postings.write()                
-                self.titlef = open(os.path.join(sys.argv[2], f"titles_{self.postings.indexCount}.txt"), "w")
+            # if self.file_no % INDEXSIZE == 0:
+            #     self.titlef.close()
+            #     self.postings.write()                
+            #     self.titlef = open(os.path.join(sys.argv[2], f"titles_{self.postings.indexCount}.txt"), "w")
 
             elem.clear()
         self.end()
@@ -50,13 +50,17 @@ class ParseWiki:
 
         print(self.file_no, end="\r")
 
-        page = Page()
-        page.initPageFromElement(children)
-        self.titlef.write(page.title + "\n")
+        # page = Page()
+        # page.initPageFromElement(children)
+        # self.titlef.write(page.title + "\n")
+
+        # if "Wikipedia:" in page.title or "Category:" in page.title:
+        #     self.file_no += 1
+        #     return
         
-        index = Index(self.file_no, page, self.tokenizer, self.stemmer)
+        # index = Index(self.file_no, page, self.tokenizer, self.stemmer)
         
-        self.postings.add(index)
+        # self.postings.add(index)
         self.file_no += 1
 
     def end(self):
@@ -65,7 +69,7 @@ class ParseWiki:
             self.postings.write()
         self.titlef.close()
 
-        print("Done Parsing! - Intermediate Indexing Over")
+        print("\nDone Parsing! - Intermediate Indexing Over")
 
     def combine(self):
         
@@ -88,6 +92,7 @@ class ParseWiki:
 
         heapq.heapify(word_list)
         heap = word_list.copy()
+        count = 0
 
         while len(heap):
 
@@ -103,9 +108,9 @@ class ParseWiki:
             while len(heap) and heap[0].word == newWord:
                 
                 if word is not None:
-                    word = copy.deepcopy(word + heap[0].catInfo) # Combine postings for this word
+                    word = word + heap[0].catInfo # Combine postings for this word
                 else:
-                    word = copy.deepcopy(heap[0].catInfo)
+                    word = heap[0].catInfo
 
                 index_file_idx = heap[0].f
                 wordLine = f_index_files[index_file_idx].readline().strip().strip("\n")
@@ -119,6 +124,10 @@ class ParseWiki:
                     heapq.heappush(heap, newNode)
 
             self.postings.invertedIndex[word.word] = word.str
+            print(count, end="\r")
+            count += 1
+
+        print("\n")
 
         if len(self.postings):
             self.totTokens += len(self.postings.invertedIndex.keys())
@@ -140,7 +149,7 @@ if __name__ == '__main__':
 
     target = ParseWiki(filename)
     target.parse()
-    target.combine()
+    # target.combine()
 
     f = open(str(sys.argv[3]), "w")
     f.write(str(len(set(target.stemmer.ignored_words)) + target.totTokens) + "\n")

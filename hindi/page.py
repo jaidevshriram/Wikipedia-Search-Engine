@@ -75,8 +75,8 @@ class Page:
         self.body = self.body[newEnd:]
 
     def parseCategories(self):
-        self.categories = re.findall(r"\[\[Category:(.*?)\]\]", self.body, flags=re.DOTALL)
-        self.body = re.sub(r"\[\[Category:(.*?)\]\]", "", self.body, flags=re.DOTALL)
+        self.categories = re.findall(r"\[\[्रेणी:(.*?)\]\]", self.body, flags=re.DOTALL)
+        self.body = re.sub(r"\[\[्रेणी:(.*?)\]\]", "", self.body, flags=re.DOTALL)
 
     def parseLinks(self):
         linkText = self.body.split("बाहरी कड़ियाँ")
