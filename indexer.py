@@ -239,15 +239,15 @@ class PostingList:
                 results.append(CategoryInformation.fromstr("d" + str))
             return results
         else:
-            startTime = time.time()
+            # startTime = time.time()
             splitstr = str.split('d')[1:]
-            sec = time.time() - startTime
-            print('> split time', sec, "seconds", len(splitstr), "docs")
+            # sec = time.time() - startTime
+            # print('> split time', sec, "seconds", len(splitstr), "docs")
             
-            startTime = time.time()
+            # startTime = time.time()
             docInfo = pool.starmap(strToPost, zip(repeat(CategoryInformation), splitstr, repeat(True), repeat(fields), repeat(len(splitstr))))
-            sec = time.time() - startTime
-            print('> star map', sec, "seconds")
+            # sec = time.time() - startTime
+            # print('> star map', sec, "seconds")
             return docInfo
 
 #            startTime = time.time()

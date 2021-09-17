@@ -96,7 +96,7 @@ class Query:
             out = wordResult
             return out
 
-        print("doc in", idx)
+        # print("doc in", idx)
 
         f = open(os.path.join(sys.argv[1], f"{idx}.txt"), "r")
         while True:
@@ -106,12 +106,12 @@ class Query:
             word, str = line.split(":")
             
             if word == wordQuery:
-                startTime = time.time()
+                # startTime = time.time()
 
                 catInfo = PostingList.strToCategoryInfoList(str, self.pool, fields)
 
-                sec = time.time() - startTime
-                print('creating catInfo', sec, "seconds")
+                # sec = time.time() - startTime
+                # print('creating catInfo', sec, "seconds")
 
                 return catInfo
 
@@ -175,19 +175,27 @@ if __name__ == "__main__":
         query = query.strip("\n").strip()
         query = Query.fromString(query, stemmer, tokenizer, titleCache, pool)
         result = query.process(startWords)
-        print(len(result))
-        sec = time.time() - startTime
+        # print(len(result))
+        # sec = time.time() - startTime
         
-        print("<Search process> time", sec)
+        # print("<Search process> time", sec)
         
-        startTime = time.time()
+        # startTime = time.time()
         docTitles = list(map(titleCache, result))
-        print(docTitles)
-        sec2 = time.time() - startTime
-        print("<Title>", sec2, "seconds")
 
-        print("-----", sec + sec2, "------")
+        # print(docTitles)
+        sec2 = time.time() - startTime
+        # print("<Title>", sec2, "seconds")
+
+        for docId, title in zip(result, docTitles):
+            out.write(f"{docId}, {title}\n")
+        out.write(f"{sec2}\n\n")
+
+        # print("-----", sec + sec2, "------")
         # print(json.dumps(result, indent=4))
+
+    pool.close()
+    pool.join()
 
     qf.close()
     out.close()
