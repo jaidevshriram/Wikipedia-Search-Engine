@@ -10,7 +10,7 @@ from utils import encode32, decode32
 from indexer import strToPost, CategoryInformation
 
 src_path = 'index/'
-dst_path = 'index-final/'
+dst_path = 'index-full/'
 os.makedirs(dst_path, exist_ok=True)
 THRESHOLD = 200000
 
@@ -63,7 +63,8 @@ def processIndexFile(index_file_p):
         sortedDocID = sorted(docIDScoreMap, key=lambda x: x[1], reverse=True)
 
         # Take the threshold
-        filteredDocs = sortedDocID[:THRESHOLD]
+        # filteredDocs = sortedDocID[:THRESHOLD]
+        filteredDocs = sortedDocID
 
         # Write back the string to fw
         newstr = ""

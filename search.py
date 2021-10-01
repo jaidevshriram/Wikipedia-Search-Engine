@@ -184,7 +184,7 @@ if __name__ == "__main__":
         # startTime = time.time()
         docTitles = list(map(titleCache, result))
 
-        print(docTitles)
+        # print(docTitles)
         sec2 = time.time() - startTime
         print("Time:", sec2, "seconds \n \n")
 

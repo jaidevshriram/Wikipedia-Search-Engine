@@ -244,6 +244,7 @@ class PostingList:
         else:
             # startTime = time.time()
             splitstr = str.split('d')[1:]
+            splitstr = splitstr[:150000]
             # sec = time.time() - startTime
             # print('> split time', sec, "seconds", len(splitstr), "docs")
             
