@@ -38,10 +38,10 @@ class ParseWiki:
 
             self.processChildren(list(elem))
 
-            # if self.file_no % INDEXSIZE == 0:
-            #     self.titlef.close()
-            #     self.postings.write()                
-            #     self.titlef = open(os.path.join(sys.argv[2], f"titles_{self.postings.indexCount}.txt"), "w")
+            if self.file_no % INDEXSIZE == 0:
+                self.titlef.close()
+                self.postings.write()                
+                self.titlef = open(os.path.join(sys.argv[2], f"titles_{self.postings.indexCount}.txt"), "w")
 
             elem.clear()
         self.end()
@@ -50,17 +50,17 @@ class ParseWiki:
 
         print(self.file_no, end="\r")
 
-        # page = Page()
-        # page.initPageFromElement(children)
-        # self.titlef.write(page.title + "\n")
+        page = Page()
+        page.initPageFromElement(children)
+        self.titlef.write(page.title + "\n")
 
-        # if "Wikipedia:" in page.title or "Category:" in page.title:
-        #     self.file_no += 1
-        #     return
+        if "Wikipedia:" in page.title or "Category:" in page.title:
+            self.file_no += 1
+            return
         
-        # index = Index(self.file_no, page, self.tokenizer, self.stemmer)
+        index = Index(self.file_no, page, self.tokenizer, self.stemmer)
         
-        # self.postings.add(index)
+        self.postings.add(index)
         self.file_no += 1
 
     def end(self):
@@ -149,7 +149,7 @@ if __name__ == '__main__':
 
     target = ParseWiki(filename)
     target.parse()
-    # target.combine()
+    target.combine()
 
     f = open(str(sys.argv[3]), "w")
     f.write(str(len(set(target.stemmer.ignored_words)) + target.totTokens) + "\n")

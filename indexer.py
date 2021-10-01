@@ -7,7 +7,7 @@ from itertools import repeat
 from config import TOT_ARTICLES
 from utils import encode32, decode32, removeDocInfo
 
-def strToPost(cls, str, score=False, fields=[], totDocs=10):
+def strToPost(cls, str, score=False, fields=['a'], totDocs=10, cat=False):
     str += "x"
 
     if score:
@@ -20,6 +20,7 @@ def strToPost(cls, str, score=False, fields=[], totDocs=10):
 
     docId, str = removeDocInfo(str)
     self.docId = decode32(docId)
+    # print(self.docId)
 
     for char in str:
         # print(char, "-")
@@ -79,7 +80,10 @@ def strToPost(cls, str, score=False, fields=[], totDocs=10):
 
         score = math.log10(1 + tf) * math.log10(TOT_ARTICLES / totDocs)
 
-        return self.docId, score
+        if cat:
+            return self.docId, score, self
+        else:
+            return self.docId, score
 
     # print("doc", self.docId)
     # print("title", self.title)
