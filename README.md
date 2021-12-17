@@ -1,6 +1,6 @@
 # Wikipedia Search Engine
 
-This is an efficient search engine for Wikipedia corpus pages with support for English and Hindi queries.
+This is an efficient search engine for Wikipedia pages with support for English and Hindi queries. The code for each language is stored in the respective directories. It is mostly similar, with minor differences in the tokenizer, stop words, and page parser.
 
 ## How to Run
 
